@@ -1,8 +1,16 @@
 // React
 import React, { Component } from 'react';
 
+// Material UI
+import CssBaseline from '@material-ui/core/CssBaseline';
+import { ThemeProvider } from '@material-ui/styles';
+import theme from '../../assets/styles/theme';
+
 // App services
 import GitHubService from '../../services/github';
+
+// Components
+import AppBar from '../../components/AppBar/AppBar';
 
 // Component files
 import './App.scss';
@@ -33,8 +41,12 @@ class App extends Component {
 
   render() {
     return (
-      <div className="App">
-      </div>
+      <React.Fragment>
+        <CssBaseline />
+        <ThemeProvider theme={theme}>
+          <AppBar />
+        </ThemeProvider>
+      </React.Fragment>
     );
   }
 }
