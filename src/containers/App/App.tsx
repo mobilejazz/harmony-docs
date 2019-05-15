@@ -1,8 +1,10 @@
+// React
 import React, { Component } from 'react';
-import Markdown from 'react-markdown';
 
+// App services
 import GitHubService from '../../services/github';
 
+// Component files
 import './App.scss';
 
 class App extends Component {
@@ -20,21 +22,18 @@ class App extends Component {
 
   componentDidMount(): void {
     // Testing
-    /*this.gitHubService.getContents().subscribe((response: any) => {
-      console.log(response);
-    });*/
+    // this.gitHubService.getContents().subscribe((response: any) => {
+    //   console.log(response);
+    // });
 
-    this.gitHubService.getFileContents('CacheRepository.md').subscribe((response: string) => {
-      this.setState({file: response})
-    });
+    // this.gitHubService.getFileContents('CacheRepository.md').subscribe((response: string) => {
+    //   this.setState({file: response})
+    // });
   }
 
   render() {
     return (
       <div className="App">
-        <Markdown
-          escapeHtml={true}
-          source={this.state.file} />
       </div>
     );
   }
