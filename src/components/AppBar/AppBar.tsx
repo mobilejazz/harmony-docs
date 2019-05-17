@@ -2,27 +2,26 @@
 import React from 'react';
 
 // Material UI
-import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
+import Button from '@material-ui/core/Button';
+import IconButton from '@material-ui/core/IconButton';
 import MatAppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
-import Typography from '@material-ui/core/Typography';
+import SupervisedUserCircle from '@material-ui/icons/SupervisedUserCircle';
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      flexGrow: 1,
-    },
-  }),
-);
+// Assets
+import './AppBar.scss';
+import GitHubIcon from '../../assets/images/github.svg';
 
 const AppBar = () => {
-  const classes = useStyles();
-
   return (
-    <div className={classes.root}>
+    <div className="AppBar">
       <MatAppBar position="static">
         <Toolbar>
-          <Typography variant="h6">Harmony</Typography>
+          <Button color="inherit"><SupervisedUserCircle className="AppBar__harmony-icon" /> Harmony</Button>
+          <span className="AppBar__spacer"></span>
+          <IconButton>
+            <img className="AppBar__github-icon" src={GitHubIcon} alt="GitHub" />
+          </IconButton>
         </Toolbar>
       </MatAppBar>
     </div>

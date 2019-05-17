@@ -1,11 +1,11 @@
 import { createMuiTheme } from '@material-ui/core/styles';
-import lightBlue from '@material-ui/core/colors/lightBlue';
-import teal from '@material-ui/core/colors/teal';
+import blue from '@material-ui/core/colors/blue';
+import amber from '@material-ui/core/colors/amber';
 
 const theme = createMuiTheme({
   palette: {
-    primary: lightBlue,
-    secondary: teal,
+    primary: blue,
+    secondary: amber,
   },
   typography: {
     fontFamily: '"Barlow", sans-serif',
