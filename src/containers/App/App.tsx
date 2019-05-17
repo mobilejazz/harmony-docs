@@ -1,18 +1,14 @@
 // React
 import React, { Component } from 'react';
 
-// Material UI
-import CssBaseline from '@material-ui/core/CssBaseline';
-import { ThemeProvider } from '@material-ui/styles';
-import theme from '../../assets/styles/theme';
-
-// App services
+// Services
 import GitHubService from '../../services/github';
 
 // Components
-import AppBar from '../../components/AppBar/AppBar';
+import SideNav from '../../components/SideNav/SideNav';
+import Main from '../../components/Main/Main';
 
-// Component files
+// Assets
 import './App.scss';
 
 class App extends Component {
@@ -25,14 +21,13 @@ class App extends Component {
   }
 
   state = {
-    file: '',
+    fileTree: [],
   }
 
   componentDidMount(): void {
-    // Testing
-    // this.gitHubService.getContents().subscribe((response: any) => {
-    //   console.log(response);
-    // });
+    this.gitHubService.getContents().subscribe((response: any) => {
+      this.setState({fileTree: response});
+    });
 
     // this.gitHubService.getFileContents('CacheRepository.md').subscribe((response: string) => {
     //   this.setState({file: response})
@@ -41,12 +36,10 @@ class App extends Component {
 
   render() {
     return (
-      <React.Fragment>
-        <CssBaseline />
-        <ThemeProvider theme={theme}>
-          <AppBar />
-        </ThemeProvider>
-      </React.Fragment>
+      <div className="App">
+        <SideNav fileTree={this.state.fileTree} />
+        <Main />
+      </div>
     );
   }
 }
