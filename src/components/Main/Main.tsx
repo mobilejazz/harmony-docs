@@ -1,13 +1,16 @@
 // React
 import React from 'react';
 
+// Dependencies
+import Markdown from 'react-markdown';
+
 // Assets
 import './Main.scss';
 
-const main = () => {
+const main = (props: any) => {
   return (
     <div className="Main">
-      Main works
+      <Markdown source= {props.item ? props.item.content : null} />
     </div>
   );
 }

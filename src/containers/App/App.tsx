@@ -1,6 +1,10 @@
 // React
 import React, { Component } from 'react';
 
+// Interfaces
+import State from '../../interfaces/state';
+import Item from '../../interfaces/item';
+
 // Services
 import GitHubService from '../../services/github';
 
@@ -20,25 +24,67 @@ class App extends Component {
     this.gitHubService = new GitHubService();
   }
 
-  state = {
-    fileTree: [],
+  state: State = {
+    contents: [],
+    path: '',
   }
 
   componentDidMount(): void {
-    this.gitHubService.getContents().subscribe((response: any) => {
-      this.setState({fileTree: response});
-    });
+    this.getRepoContents();
+  }
 
-    // this.gitHubService.getFileContents('CacheRepository.md').subscribe((response: string) => {
-    //   this.setState({file: response})
-    // });
+  private getRepoContents(): void {
+    const repoSubscription = this.gitHubService.getContents().subscribe((response: Item[]) => {
+      const newContents: Item[] = response.map((item: Item) => {
+        return {
+          info: item,
+        };
+      });
+
+      this.setState({contents: newContents});
+      repoSubscription.unsubscribe();
+    });
+  }
+
+  private getItemIndex(path: string): number {
+    return this.state.contents.findIndex((item: Item) => item.info.path === path);
+  }
+
+  private fileHasContents(path: string): boolean {
+    const itemIndex = this.getItemIndex(path);
+    return this.state.contents[itemIndex].hasOwnProperty('content');
+  }
+
+  private getFileContents(path: string): void {
+    const itemIndex = this.getItemIndex(path);
+    const newContents: Item[] = {...this.state.contents};
+
+    const fileSubscription = this.gitHubService.getFileContents(path).subscribe((response: string) => {
+      newContents[itemIndex].content = response;
+      this.setState({content: newContents});
+      fileSubscription.unsubscribe();
+    });
+  }
+
+  private handlePathChange(path: string): void {
+    if (!this.fileHasContents(path)) {
+      this.getFileContents(path);
+    }
+
+    this.setState({path: path});
   }
 
   render() {
+    let itemToView = null;
+
+    if (this.state.path) {
+      itemToView = this.state.contents[this.getItemIndex(this.state.path)];
+    }
+
     return (
       <div className="App">
-        <SideNav fileTree={this.state.fileTree} />
-        <Main />
+        <SideNav contents={this.state.contents} handlePathChange={(path: string) => this.handlePathChange(path)} />
+        <Main item={itemToView} />
       </div>
     );
   }
