@@ -1,6 +1,9 @@
 // React
 import React, { Component } from 'react';
 
+// Dependencies
+import { Route } from 'react-router-dom';
+
 // Interfaces
 import State from '../../interfaces/state';
 import Item from '../../interfaces/item';
@@ -29,7 +32,7 @@ class App extends Component {
     path: '',
   }
 
-  componentDidMount(): void {
+  public componentDidMount(): void {
     this.getRepoContents();
   }
 
@@ -56,17 +59,21 @@ class App extends Component {
   }
 
   private getFileContents(path: string): void {
-    const itemIndex = this.getItemIndex(path);
-    const newContents: Item[] = {...this.state.contents};
+    const itemIndex: number = this.getItemIndex(path);
+    const newContents: Item[] = [...this.state.contents];
 
     const fileSubscription = this.gitHubService.getFileContents(path).subscribe((response: string) => {
       newContents[itemIndex].content = response;
-      this.setState({content: newContents});
+      this.setState({contents: newContents});
       fileSubscription.unsubscribe();
     });
   }
 
   private handlePathChange(path: string): void {
+    if (path === this.state.path) {
+      return;
+    }
+
     if (!this.fileHasContents(path)) {
       this.getFileContents(path);
     }
@@ -75,16 +82,19 @@ class App extends Component {
   }
 
   render() {
-    let itemToView = null;
-
-    if (this.state.path) {
-      itemToView = this.state.contents[this.getItemIndex(this.state.path)];
-    }
-
     return (
       <div className="App">
         <SideNav contents={this.state.contents} handlePathChange={(path: string) => this.handlePathChange(path)} />
-        <Main item={itemToView} />
+        <Route
+          path="/:path"
+          render={(props) => (
+            <Main
+              {...props}
+              contents={this.state.contents}
+              handlePathChange={(path: string) => this.handlePathChange(path)}
+            />
+          )}
+        />
       </div>
     );
   }

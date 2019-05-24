@@ -8,14 +8,18 @@ import { Link } from "react-router-dom";
 import './SideNav.scss';
 
 const sideNav = (props: any) => {
-  const fileListItems =  props.contents.map((item: any, index: number) => {
+  const updateCurrentPath = (path: string) => {
+    props.handlePathChange(path);
+  }
+
+  const fileListItems = props.contents.map((item: any, index: number) => {
     if (item.info.type === 'dir') {
       return <li key={item.info.sha}>{item.info.name} ▾</li>;
     }
 
     return (
       <li key={item.info.sha}>
-        <Link to={`/${item.info.path}`} onClick={() => {props.handlePathChange(item.info.path)}}>{item.info.name}</Link>
+        <Link to={`/${item.info.path}`} onClick={() => {updateCurrentPath(item.info.path)}}>{item.info.name}</Link>
       </li>
     );
   });
