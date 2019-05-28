@@ -24,15 +24,15 @@ class Main extends Component<any> {
   }
 
   private getItemIndex(path: string): number {
-    return this.props.contents.findIndex((item: Item) => item.info.path === path);
+    return this.props.items.findIndex((item: Item) => item.path === path);
   }
 
   render() {
     const itemToViewIndex: number = this.getItemIndex(this.getCurrentPath());
     let markdown: string = '';
 
-    if (this.props.contents[itemToViewIndex]) {
-      markdown = this.props.contents[itemToViewIndex].content;
+    if (this.props.items[itemToViewIndex]) {
+      markdown = this.props.items[itemToViewIndex].content;
     }
 
     return (

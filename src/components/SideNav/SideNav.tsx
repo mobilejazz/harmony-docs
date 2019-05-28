@@ -4,22 +4,25 @@ import React from 'react';
 // Routing
 import { Link } from "react-router-dom";
 
+// Interfaces
+import Item from '../../interfaces/item';
+
 // Assets
 import './SideNav.scss';
 
 const sideNav = (props: any) => {
-  const updateCurrentPath = (path: string) => {
+  const updatePath = (path: string) => {
     props.handlePathChange(path);
   }
 
-  const fileListItems = props.contents.map((item: any, index: number) => {
-    if (item.info.type === 'dir') {
-      return <li key={item.info.sha}>{item.info.name} ▾</li>;
+  const itemsList = props.items.map((item: Item) => {
+    if (item.type === 'dir') {
+      return <li key={item.sha}>{item.name} ▾</li>;
     }
 
     return (
-      <li key={item.info.sha}>
-        <Link to={`/${item.info.path}`} onClick={() => {updateCurrentPath(item.info.path)}}>{item.info.name}</Link>
+      <li key={item.sha}>
+        <Link to={`/${item.path}`} onClick={() => {updatePath(item.path)}}>{item.name}</Link>
       </li>
     );
   });
@@ -27,7 +30,7 @@ const sideNav = (props: any) => {
   return (
     <div className="SideNav">
       <ul>
-        {fileListItems}
+        {itemsList}
       </ul>
     </div>
   );

@@ -1,7 +1,7 @@
 import Item from './item';
 
 interface State {
-  contents: Item[];
+  items: Item[];
   path?: string;
 }
 

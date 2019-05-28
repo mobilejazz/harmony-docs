@@ -8,19 +8,6 @@ class GitHubService {
   private owner: string = 'mobilejazz';
   private repo: string = 'harmony-reference';
 
-  public getReadme(): Observable<any> {
-    return Observable.create((observer: any) => {
-      axios.get(`${this.baseUrl}/${this.owner}/${this.repo}/readme`)
-        .then((response) => {
-          observer.next(response.data);
-          observer.complete();
-        })
-        .catch((error) => {
-          observer.error(error);
-        });
-    });
-  }
-
   public getContents(): Observable<any> {
     return Observable.create((observer: any) => {
       axios.get(`${this.baseUrl}/${this.owner}/${this.repo}/contents/`)
@@ -34,7 +21,20 @@ class GitHubService {
     });
   }
 
-  public getFileInfo(path: string): Observable<any> {
+  public getReadme(): Observable<any> {
+    return Observable.create((observer: any) => {
+      axios.get(`${this.baseUrl}/${this.owner}/${this.repo}/readme`)
+        .then((response) => {
+          observer.next(response.data);
+          observer.complete();
+        })
+        .catch((error) => {
+          observer.error(error);
+        });
+    });
+  }
+
+  public getPathContents(path: string): Observable<any> {
     return Observable.create((observer: any) => {
       axios.get(`${this.baseUrl}/${this.owner}/${this.repo}/contents/${path}`)
         .then((response) => {

@@ -29,7 +29,7 @@ class App extends Component<any> {
   }
 
   state: State = {
-    contents: [],
+    items: [],
     path: '',
   }
 
@@ -39,34 +39,32 @@ class App extends Component<any> {
 
   private getRepoContents(): void {
     const repoSubscription: Subscription = this.gitHubService.getContents().subscribe((response: Item[]) => {
-      const newContents: Item[] = response.map((item: Item) => {
-        return {
-          info: item,
-        };
-      });
+      const newItems: Item[] = response;
 
-      this.setState({contents: newContents});
+      this.setState({items: newItems});
       this.goToReadme();
+
       repoSubscription.unsubscribe();
     });
   }
 
   private getItemIndex(path: string): number {
-    return this.state.contents.findIndex((item: Item) => item.info.path === path);
+    return this.state.items.findIndex((item: Item) => item.path === path);
   }
 
   private fileHasContents(path: string): boolean {
     const itemIndex: number = this.getItemIndex(path);
-    return this.state.contents[itemIndex].hasOwnProperty('content');
+    return this.state.items[itemIndex].hasOwnProperty('content');
   }
 
   private getFileContents(path: string): void {
-    const itemIndex: number = this.getItemIndex(path);
-    const newContents: Item[] = [...this.state.contents];
-
     const fileSubscription: Subscription = this.gitHubService.getFileContents(path).subscribe((response: string) => {
-      newContents[itemIndex].content = response;
-      this.setState({contents: newContents});
+      const itemIndex: number = this.getItemIndex(path);
+      const newItems: Item[] = [...this.state.items];
+
+      newItems[itemIndex].content = response;
+      this.setState({items: newItems});
+
       fileSubscription.unsubscribe();
     });
   }
@@ -80,7 +78,9 @@ class App extends Component<any> {
       this.getFileContents(path);
     }
 
-    this.setState({path: path});
+    const newPath: string = path;
+
+    this.setState({path: newPath});
   }
 
   private goToReadme(): void {
@@ -88,9 +88,10 @@ class App extends Component<any> {
       return;
     }
 
-    const readmeSubscription: Subscription = this.gitHubService.getReadme().subscribe((response: any) => {
+    const readmeSubscription: Subscription = this.gitHubService.getReadme().subscribe((response: Item) => {
       this.handlePathChange(response.path);
       this.props.history.push(response.path);
+
       readmeSubscription.unsubscribe();
     });
   }
@@ -98,13 +99,16 @@ class App extends Component<any> {
   render() {
     return (
       <div className="App">
-        <SideNav contents={this.state.contents} handlePathChange={(path: string) => this.handlePathChange(path)} />
+        <SideNav
+          items={this.state.items}
+          handlePathChange={(path: string) => this.handlePathChange(path)}
+        />
         <Route
           path="/:path"
           render={(props) => (
             <Main
               {...props}
-              contents={this.state.contents}
+              items={this.state.items}
               handlePathChange={(path: string) => this.handlePathChange(path)}
             />
           )}
