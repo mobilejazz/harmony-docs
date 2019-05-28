@@ -12,14 +12,14 @@ import './Main.scss';
 
 class Main extends Component<any> {
   public componentDidUpdate(): void {
-    this.updateCurrentPath(this.getCurrentPath());
+    this.updatePath(this.getCurrentPath());
   }
 
   private getCurrentPath(): string {
-    return this.props.location.pathname.substr(this.props.location.pathname.lastIndexOf('/') + 1);
+    return this.props.location.pathname.slice(1);
   }
 
-  private updateCurrentPath(path: string): void {
+  private updatePath(path: string): void {
     this.props.handlePathChange(path);
   }
 

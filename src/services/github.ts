@@ -34,7 +34,7 @@ class GitHubService {
     });
   }
 
-  public getPathContents(path: string): Observable<any> {
+  public getDirContents(path: string): Observable<any> {
     return Observable.create((observer: any) => {
       axios.get(`${this.baseUrl}/${this.owner}/${this.repo}/contents/${path}`)
         .then((response) => {
