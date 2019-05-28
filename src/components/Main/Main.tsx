@@ -28,9 +28,8 @@ class Main extends Component<any> {
   }
 
   render() {
-    const itemToViewIndex = this.getItemIndex(this.getCurrentPath());
-
-    let markdown = '';
+    const itemToViewIndex: number = this.getItemIndex(this.getCurrentPath());
+    let markdown: string = '';
 
     if (this.props.contents[itemToViewIndex]) {
       markdown = this.props.contents[itemToViewIndex].content;

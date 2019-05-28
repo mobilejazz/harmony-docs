@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 
 // Dependencies
 import { Route } from 'react-router-dom';
+import { Subscription } from 'rxjs';
 
 // Interfaces
 import State from '../../interfaces/state';
@@ -18,7 +19,7 @@ import Main from '../../components/Main/Main';
 // Assets
 import './App.scss';
 
-class App extends Component {
+class App extends Component<any> {
   constructor(
     props: any,
     private gitHubService: GitHubService,
@@ -37,7 +38,7 @@ class App extends Component {
   }
 
   private getRepoContents(): void {
-    const repoSubscription = this.gitHubService.getContents().subscribe((response: Item[]) => {
+    const repoSubscription: Subscription = this.gitHubService.getContents().subscribe((response: Item[]) => {
       const newContents: Item[] = response.map((item: Item) => {
         return {
           info: item,
@@ -45,6 +46,7 @@ class App extends Component {
       });
 
       this.setState({contents: newContents});
+      this.goToReadme();
       repoSubscription.unsubscribe();
     });
   }
@@ -54,7 +56,7 @@ class App extends Component {
   }
 
   private fileHasContents(path: string): boolean {
-    const itemIndex = this.getItemIndex(path);
+    const itemIndex: number = this.getItemIndex(path);
     return this.state.contents[itemIndex].hasOwnProperty('content');
   }
 
@@ -62,7 +64,7 @@ class App extends Component {
     const itemIndex: number = this.getItemIndex(path);
     const newContents: Item[] = [...this.state.contents];
 
-    const fileSubscription = this.gitHubService.getFileContents(path).subscribe((response: string) => {
+    const fileSubscription: Subscription = this.gitHubService.getFileContents(path).subscribe((response: string) => {
       newContents[itemIndex].content = response;
       this.setState({contents: newContents});
       fileSubscription.unsubscribe();
@@ -79,6 +81,18 @@ class App extends Component {
     }
 
     this.setState({path: path});
+  }
+
+  private goToReadme(): void {
+    if (this.props.location.pathname !== '/') {
+      return;
+    }
+
+    const readmeSubscription: Subscription = this.gitHubService.getReadme().subscribe((response: any) => {
+      this.handlePathChange(response.path);
+      this.props.history.push(response.path);
+      readmeSubscription.unsubscribe();
+    });
   }
 
   render() {
