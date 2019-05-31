@@ -59,7 +59,7 @@ class App extends Component<any> {
 
   private getDirContents(path: string): void {
     const dirSubscription: Subscription = this.gitHubService.getDirContents(path).subscribe((response: Item[]) => {
-      const newItems: Item[] = this.state.items.concat(response);
+      const newItems: Item[] = [...this.state.items].concat(response);
 
       this.setState({items: newItems});
 
