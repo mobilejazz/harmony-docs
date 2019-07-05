@@ -1,3 +1,68 @@
+@import "../../assets/styles/variables";
+
 .SideNav {
+  background-color: $sidenav;
   flex-basis: 240px;
+
+  a {
+    text-decoration: none;
+  }
+}
+
+.menu {
+  color: white;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  position: sticky;
+  top: 0;
+
+  &__item {
+    a,
+    span {
+      background-color: $sidenav;
+      border-left: 4px solid transparent;
+      color: white;
+      cursor: pointer;
+      display: block;
+      padding: 16px;
+
+      &:hover {
+        background-color: lighten($sidenav, 5%);
+      }
+    }
+
+    &--active {
+      a,
+      span {
+        border-left: 4px solid lighten($sidenav, 20%);
+      }
+    }
+  }
+
+  &__sub-menu {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  &__sub-item {
+    a {
+      background-color: #1f364d;
+      border-left: 4px solid transparent;
+      color: white;
+      display: block;
+      padding: 16px;
+
+      &:hover {
+        background-color: lighten($sidenav, 10%);
+      }
+    }
+
+    &--active {
+      a {
+        border-left: 4px solid lighten($sidenav, 25%);
+      }
+    }
+  }
 }

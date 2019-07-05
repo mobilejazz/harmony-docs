@@ -1,10 +1,5 @@
-// Dependencies
-@import "../../../node_modules/normalize.css/normalize.css";
-
-// Fonts
-@import url('https://fonts.googleapis.com/css?family=Barlow');
-
-// Variables
+@import "./dependencies.scss";
+@import "./fonts.scss";
 @import "./variables";
-
-@import "./scaffolding.scss"
+@import "./scaffolding.scss";
+@import "./typography.scss";

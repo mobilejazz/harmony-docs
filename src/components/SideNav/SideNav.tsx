@@ -19,7 +19,7 @@ const sideNav = (props: any) => {
     if (item.type === 'dir') {
       const children: Item[] = props.items.map((child: Item) => {
         return child.path.includes(`${item.path}/`) ? (
-          <li key={child.sha}>
+          <li className={`menu__sub-item ${props.location === '/' + child.path ? 'menu__sub-item--active' : ''}`} key={child.sha}>
             <Link to={`/${child.path}`} onClick={() => {updatePath(child.path)}}>
               {child.name}
             </Link>
@@ -28,9 +28,9 @@ const sideNav = (props: any) => {
       });
 
       return (
-        <li key={item.sha}>
-          {item.name} ▾
-          <ul>
+        <li className="menu__item" key={item.sha}>
+          <span>{item.name} ▾</span>
+          <ul className="menu__sub-menu">
             {children}
           </ul>
         </li>
@@ -38,7 +38,7 @@ const sideNav = (props: any) => {
     }
 
     return !item.path.includes('/') ? (
-      <li key={item.sha}>
+      <li className={`menu__item ${props.location === '/' + item.path ? 'menu__item--active' : ''}`} key={item.sha}>
         <Link to={`/${item.path}`} onClick={() => {updatePath(item.path)}}>{item.name}</Link>
       </li>
     ) : null;
@@ -46,7 +46,7 @@ const sideNav = (props: any) => {
 
   return (
     <div className="SideNav">
-      <ul>
+      <ul className="menu">
         {itemsList}
       </ul>
     </div>

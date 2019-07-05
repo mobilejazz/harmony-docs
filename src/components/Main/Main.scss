@@ -1,3 +1,9 @@
 .Main {
+  flex: 1;
+  max-width: 1200px;
+  padding: 32px;
 
+  & > *:first-child {
+    margin-top: 0;
+  }
 }
