@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 
 // Dependencies
 import { Route } from 'react-router-dom';
-import { Subscription } from 'rxjs';
+import { take } from 'rxjs/operators';
 
 // Interfaces
 import State from '../../interfaces/state';
@@ -38,15 +38,19 @@ class App extends Component<any> {
   }
 
   private getRepoContents(): void {
-    const repoSubscription: Subscription = this.gitHubService.getContents().subscribe((response: Item[]) => {
-      const newItems: Item[] = response;
-
-      this.setState({items: newItems});
-      this.goToReadme();
-      this.getSubDirRepoContents();
-
-      repoSubscription.unsubscribe();
-    });
+    this.gitHubService.getContents()
+      .pipe(
+        take(1)
+      )
+      .subscribe(
+        (response: Item[]) => {
+          const newItems: Item[] = response;
+          this.setState({items: newItems});
+          this.goToReadme();
+          this.getSubDirRepoContents();
+        },
+        err => {}
+      );
   }
 
   private getSubDirRepoContents(): void {
@@ -58,13 +62,17 @@ class App extends Component<any> {
   }
 
   private getDirContents(path: string): void {
-    const dirSubscription: Subscription = this.gitHubService.getDirContents(path).subscribe((response: Item[]) => {
-      const newItems: Item[] = [...this.state.items].concat(response);
-
-      this.setState({items: newItems});
-
-      dirSubscription.unsubscribe();
-    });
+    this.gitHubService.getDirContents(path)
+    .pipe(
+      take(1)
+    )
+    .subscribe(
+      (response: Item[]) => {
+        const newItems: Item[] = [...this.state.items].concat(response);
+        this.setState({items: newItems});
+      },
+      err => {}
+    );
   }
 
   private getItemIndex(path: string): number {
@@ -77,15 +85,19 @@ class App extends Component<any> {
   }
 
   private getFileContents(path: string): void {
-    const fileSubscription: Subscription = this.gitHubService.getFileContents(path).subscribe((response: string) => {
-      const itemIndex: number = this.getItemIndex(path);
-      const newItems: any[] = [...this.state.items];
-
-      newItems[itemIndex].content = response;
-      this.setState({items: newItems});
-
-      fileSubscription.unsubscribe();
-    });
+    this.gitHubService.getFileContents(path)
+      .pipe(
+        take(1)
+      )
+      .subscribe(
+        (response: string) => {
+          const itemIndex: number = this.getItemIndex(path);
+          const newItems: any[] = [...this.state.items];
+          newItems[itemIndex].content = response;
+          this.setState({items: newItems});
+        },
+        err => {}
+      );
   }
 
   private handlePathChange(path: string): void {
@@ -106,17 +118,21 @@ class App extends Component<any> {
     if (this.props.location.pathname !== '/') {
       return;
     }
-
-    const readmeSubscription: Subscription = this.gitHubService.getReadme().subscribe((response: Item) => {
-      this.handlePathChange(response.path);
-      this.props.history.push(response.path);
-
-      readmeSubscription.unsubscribe();
-    });
+    
+    this.gitHubService.getReadme()
+    .pipe(
+      take(1)
+    )
+    .subscribe(
+      (response: Item) => {
+        this.handlePathChange(response.path);
+        this.props.history.push(response.path);
+      },
+      err => {}
+    );
   }
 
   render() {
-    console.log(this.props);
     return (
       <div className="App">
         <SideNav
