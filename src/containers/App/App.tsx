@@ -3,11 +3,13 @@ import React, { Component } from 'react';
 
 // Dependencies
 import { Route } from 'react-router-dom';
-import { take } from 'rxjs/operators';
+import { take, map, combineAll, zip, mergeAll, mergeMap } from 'rxjs/operators';
+import { empty, forkJoin, Observable} from 'rxjs';
 
 // Interfaces
 import State from '../../interfaces/state';
 import Item from '../../interfaces/item';
+import MenuItem from '../../interfaces/menu-item';
 
 // Services
 import GitHubService from '../../services/github';
@@ -30,53 +32,67 @@ class App extends Component<any> {
 
   state: State = {
     items: [],
+    menu: [],
     path: '',
   }
 
   public componentDidMount(): void {
-    this.getRepoContents();
-  }
-
-  private getRepoContents(): void {
-    this.gitHubService.getContents()
-      .pipe(
-        take(1)
-      )
-      .subscribe(
-        (response: Item[]) => {
-          const newItems: Item[] = response;
-          this.setState({items: newItems});
-          this.goToReadme();
-          this.getSubDirRepoContents();
-        },
-        err => {}
-      );
-  }
-
-  private getSubDirRepoContents(): void {
-    this.state.items.forEach((item: Item) => {
-      if (item.type === "dir") {
-        this.getDirContents(item.path);
-      }
+    const items: Item[] = [];
+    const menu: MenuItem[] = [];
+    this.getRepoContents(0, items, menu)
+      .subscribe((response) => {
+        const existingItems = [...this.state.items];
+        const existingMenu = [...this.state.menu];
+        console.log('repaint')
+        console.log('response', response)
+        this.setState({
+          items: [...existingItems, ...items],
+          menu: [...existingMenu, ...menu]
+        });
+        this.goToReadme();
     });
   }
 
-  private getDirContents(path: string): void {
-    this.gitHubService.getDirContents(path)
-    .pipe(
-      take(1)
-    )
-    .subscribe(
-      (response: Item[]) => {
-        const newItems: Item[] = [...this.state.items].concat(response);
-        this.setState({items: newItems});
-      },
-      err => {}
-    );
+  private getRepoContents(level: number, items: Item[], menu: MenuItem[], path?: string): Observable<any> {
+    return this.gitHubService.getContents(path)
+      .pipe(
+        take(1),
+        mergeMap((response: Item[]) => {
+          console.log('current Level', level)
+          const observablesArray: any = []; // TODO: Add interface
+
+          response.forEach((item: Item) => {
+            // Add item
+            items.push(item)
+
+            // Create menu item
+            const menuItem: MenuItem = {
+              path: item.path,
+              name: item.name,
+              sha: item.sha,
+            };
+
+            menu.push(menuItem)
+
+            // If item is a directory, let's get it's children
+            if (item.type === "dir") {
+              menuItem.children = [];
+              observablesArray.push(this.getRepoContents(level + 1, items, menuItem.children, item.path).subscribe());
+            }
+          });
+
+          console.log('oblength', observablesArray.length)
+          return observablesArray.length > 0 ? forkJoin(observablesArray) : Observable.create();
+        })
+      );
   }
 
   private getItemIndex(path: string): number {
-    return this.state.items.findIndex((item: Item) => item.path === path);
+    return this.state.items.length ? this.state.items.findIndex((item: Item) => item.path === path): -1;
+  }
+
+  private getMenuItem(path: string): MenuItem | undefined {
+    return this.state.menu.find((menuItem: MenuItem) => menuItem.path === path);
   }
 
   private fileHasContents(path: string): boolean {
@@ -137,10 +153,11 @@ class App extends Component<any> {
       <div className="App">
         <SideNav
           location={this.props.location.pathname}
+          menu={this.state.menu}
           items={this.state.items}
           handlePathChange={(path: string) => this.handlePathChange(path)}
         />
-        <Route
+        {/* <Route
           path="/:path"
           render={(props) => (
             <Main
@@ -149,7 +166,7 @@ class App extends Component<any> {
               handlePathChange={(path: string) => this.handlePathChange(path)}
             />
           )}
-        />
+        /> */}
       </div>
     );
   }

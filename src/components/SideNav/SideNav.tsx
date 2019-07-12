@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 
 // Interfaces
 import Item from '../../interfaces/item';
+import MenuItem from '../../interfaces/menu-item';
 
 // Assets
 import './SideNav.scss';
@@ -15,39 +16,59 @@ const sideNav = (props: any) => {
     props.handlePathChange(path);
   }
 
-  const itemsList = props.items.map((item: Item) => {
-    if (item.type === 'dir') {
-      const children: Item[] = props.items.map((child: Item) => {
-        return child.path.includes(`${item.path}/`) ? (
-          <li className={`menu__sub-item ${props.location === '/' + child.path ? 'menu__sub-item--active' : ''}`} key={child.sha}>
-            <Link to={`/${child.path}`} onClick={() => {updatePath(child.path)}}>
-              {child.name}
-            </Link>
-          </li>
-        ) : null;
-      });
+  const renderMenu = (items: MenuItem[]) => {
+    const lineItems = items.map((item: MenuItem) => {
+      let submenu;
+
+      if (item.children && item.children.length > 0) {
+        submenu = renderMenu(item.children)
+      }
 
       return (
-        <li className="menu__item" key={item.sha}>
-          <span>{item.name} ▾</span>
-          <ul className="menu__sub-menu">
-            {children}
-          </ul>
-        </li>
-      );
-    }
+        <li>{item.name}</li>
+      )
+    });
 
-    return !item.path.includes('/') ? (
-      <li className={`menu__item ${props.location === '/' + item.path ? 'menu__item--active' : ''}`} key={item.sha}>
-        <Link to={`/${item.path}`} onClick={() => {updatePath(item.path)}}>{item.name}</Link>
-      </li>
-    ) : null;
-  });
+    return (
+      <ul className="menu">
+        {lineItems}
+      </ul>
+    )
+  }
+
+  // const itemsList = props.items.map((item: Item) => {
+  //   if (item.type === 'dir') {
+  //     const children: Item[] = props.items.map((child: Item) => {
+  //       return child.path.includes(`${item.path}/`) ? (
+  //         <li className={`menu__sub-item ${props.location === '/' + child.path ? 'menu__sub-item--active' : ''}`} key={child.sha}>
+  //           <Link to={`/${child.path}`} onClick={() => {updatePath(child.path)}}>
+  //             {child.name}
+  //           </Link>
+  //         </li>
+  //       ) : null;
+  //     });
+
+  //     return (
+  //       <li className="menu__item" key={item.sha}>
+  //         <span>{item.name} ▾</span>
+  //         <ul className="menu__sub-menu">
+  //           {children}
+  //         </ul>
+  //       </li>
+  //     );
+  //   }
+
+  //   return !item.path.includes('/') ? (
+  //     <li className={`menu__item ${props.location === '/' + item.path ? 'menu__item--active' : ''}`} key={item.sha}>
+  //       <Link to={`/${item.path}`} onClick={() => {updatePath(item.path)}}>{item.name}</Link>
+  //     </li>
+  //   ) : null;
+  // });
 
   return (
     <div className="SideNav">
       <ul className="menu">
-        {itemsList}
+        {renderMenu(props.menu)}
       </ul>
     </div>
   );

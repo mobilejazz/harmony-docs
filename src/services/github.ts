@@ -6,11 +6,11 @@ class GitHubService {
   // TODO: Move to config file
   private baseUrl: string = 'https://api.github.com/repos';
   private owner: string = 'mobilejazz';
-  private repo: string = 'harmony-reference';
+  private repo: string = 'harmony-docs';
 
-  public getContents(): Observable<any> {
+  public getContents(path: string = ''): Observable<any> {
     return Observable.create((observer: any) => {
-      axios.get(`${this.baseUrl}/${this.owner}/${this.repo}/contents/`)
+      axios.get(`${this.baseUrl}/${this.owner}/${this.repo}/contents/${path}?ref=develop`)
         .then((response) => {
           observer.next(response.data);
           observer.complete();
@@ -24,19 +24,6 @@ class GitHubService {
   public getReadme(): Observable<any> {
     return Observable.create((observer: any) => {
       axios.get(`${this.baseUrl}/${this.owner}/${this.repo}/readme`)
-        .then((response) => {
-          observer.next(response.data);
-          observer.complete();
-        })
-        .catch((error) => {
-          observer.error(error);
-        });
-    });
-  }
-
-  public getDirContents(path: string): Observable<any> {
-    return Observable.create((observer: any) => {
-      axios.get(`${this.baseUrl}/${this.owner}/${this.repo}/contents/${path}`)
         .then((response) => {
           observer.next(response.data);
           observer.complete();
