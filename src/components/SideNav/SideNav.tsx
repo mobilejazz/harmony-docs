@@ -25,7 +25,7 @@ const sideNav = (props: any) => {
       }
 
       return (
-        <li>{item.name}</li>
+        <li key={item.sha}>{item.name}</li>
       )
     });
 
