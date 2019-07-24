@@ -1,5 +1,5 @@
 // React
-import React from 'react';
+import React, { Component } from 'react';
 
 // Routing
 import { Link } from "react-router-dom";
@@ -10,29 +10,77 @@ import MenuItem from '../../interfaces/menu-item';
 // Assets
 import './SideNav.scss';
 
-const sideNav = (props: any) => {
-  const updatePath = (path: string) => {
-    props.handlePathChange(path);
+class SideNav extends Component<any> { // TODO: Add props and state interface
+  state = {
+    openSubmenus: ['test'],
   }
 
-  const renderMenu = (items: MenuItem[]) => {
+  private updatePath(path: string): void {
+    this.props.handlePathChange(path);
+  }
+
+  private isSubmenuOpen(sha: string): number {
+    return this.state.openSubmenus.findIndex((itemSha: string) => itemSha === sha);
+  }
+
+  private toggleSubmenu(sha: string): void {
+    const index = this.isSubmenuOpen(sha);
+    const openSubmenus = [...this.state.openSubmenus];
+
+    if (index === -1) {
+      openSubmenus.push(sha);
+    } else {
+      openSubmenus.splice(index, 1);
+    }
+
+    this.setState({openSubmenus: openSubmenus});
+  }
+
+  private getMenuItemClass(item: MenuItem): string {
+    const classes: string[] = ['menu__item'];
+
+    if (this.isSubmenuOpen(item.sha) > 0) {
+      classes.push('menu__item--submenu-open');
+    }
+
+    if (item.children) {
+      classes.push('menu__item--submenu-toggle');
+    } else {
+      classes.push('menu__item--link')
+    }
+
+    if (this.isActiveMenuItem(item.path)) {
+      classes.push('menu__item--active');
+    }
+
+    return classes.join(' ');
+  }
+
+  private isActiveMenuItem(path: string): boolean {
+    return `/${path}` === this.props.location;
+  }
+
+  private renderMenu(items: MenuItem[]): JSX.Element {
     const lineItems = items.map((item: MenuItem) => {
       let submenu: any;
 
       if (item.children && item.children.length > 0) {
-        submenu = renderMenu(item.children);
+        submenu = this.renderMenu(item.children);
       }
 
       return (
-        <li className="menu__item" key={item.sha}>
-          {(
-            !item.children ?
-            <Link to={`/${item.path}`} onClick={() => {updatePath(item.path)}}>{item.name}</Link> :
-            <div>
-              <span>{item.name}</span>
-              <span>▾</span>
-            </div>
-          )}
+        item.children ?
+        <li className={this.getMenuItemClass(item)} key={item.sha}>
+          <div onClick={() => {this.toggleSubmenu(item.sha)}}>
+            <span>{item.name}</span>
+            <span className={this.isSubmenuOpen(item.sha) > 0 ? 'caret-up' : 'caret-down'}></span>
+          </div>
+          {submenu}
+        </li> :
+        <li className={this.getMenuItemClass(item)} key={item.sha}>
+          <Link to={`/${item.path}`} onClick={() => {this.updatePath(item.path)}}>
+            {item.name}
+          </Link>
           {submenu}
         </li>
       )
@@ -45,40 +93,13 @@ const sideNav = (props: any) => {
     )
   }
 
-  // const itemsList = props.items.map((item: Item) => {
-  //   if (item.type === 'dir') {
-  //     const children: Item[] = props.items.map((child: Item) => {
-  //       return child.path.includes(`${item.path}/`) ? (
-  //         <li className={`menu__sub-item ${props.location === '/' + child.path ? 'menu__sub-item--active' : ''}`} key={child.sha}>
-  //           <Link to={`/${child.path}`} onClick={() => {updatePath(child.path)}}>
-  //             {child.name}
-  //           </Link>
-  //         </li>
-  //       ) : null;
-  //     });
-
-  //     return (
-  //       <li className="menu__item" key={item.sha}>
-  //         <span>{item.name} ▾</span>
-  //         <ul className="menu__sub-menu">
-  //           {children}
-  //         </ul>
-  //       </li>
-  //     );
-  //   }
-
-  //   return !item.path.includes('/') ? (
-  //     <li className={`menu__item ${props.location === '/' + item.path ? 'menu__item--active' : ''}`} key={item.sha}>
-  //       <Link to={`/${item.path}`} onClick={() => {updatePath(item.path)}}>{item.name}</Link>
-  //     </li>
-  //   ) : null;
-  // });
-
-  return (
-    <div className="SideNav">
-      {renderMenu(props.menu)}
-    </div>
-  );
+  render() {
+    return (
+      <div className="SideNav">
+        {this.renderMenu(this.props.menu)}
+      </div>
+    )
+  }
 }
 
-export default sideNav;
+export default SideNav;

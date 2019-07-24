@@ -18,25 +18,63 @@
   top: 0;
 
   &__item {
-    a, div {
-      color: white;
-      cursor: pointer;
-      display: block;
-      padding: 16px;
+    color: white;
+    cursor: pointer;
 
-      &:hover {
-        background-color: lighten($sidenav, 5%);
+    &--link {
+      a {
+        color: inherit;
+        padding: 16px;
+        display: block;
+  
+        &:hover {
+          background-color: lighten($sidenav, 5%);
+        }
       }
     }
 
-    div {
-      display: flex;
-      justify-content: space-between;
+    &--submenu-toggle {
+      div {
+        display: flex;
+        justify-content: space-between;
+        padding: 16px;
+  
+        &:hover {
+          background-color: lighten($sidenav, 5%);
+        }
+      }
+    }
+
+    &--active {
+      color: $accent;
     }
   }
 
   // Submenus
   .menu {
+    display: none;
     margin-left: 8px;
   }
+
+  .menu__item--submenu-open {
+    & > .menu {
+      display: block;
+    }
+  }
+}
+
+.caret-up {
+  width: 0; 
+  height: 0; 
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid white;
+}
+
+.caret-down {
+  width: 0; 
+  height: 0; 
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid white;
 }
