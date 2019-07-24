@@ -18,10 +18,7 @@
   top: 0;
 
   &__item {
-    a,
-    span {
-      background-color: $sidenav;
-      border-left: 4px solid transparent;
+    a, div {
       color: white;
       cursor: pointer;
       display: block;
@@ -32,37 +29,14 @@
       }
     }
 
-    &--active {
-      a,
-      span {
-        border-left: 4px solid lighten($sidenav, 20%);
-      }
+    div {
+      display: flex;
+      justify-content: space-between;
     }
   }
 
-  &__sub-menu {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-  }
-
-  &__sub-item {
-    a {
-      background-color: #1f364d;
-      border-left: 4px solid transparent;
-      color: white;
-      display: block;
-      padding: 16px;
-
-      &:hover {
-        background-color: lighten($sidenav, 10%);
-      }
-    }
-
-    &--active {
-      a {
-        border-left: 4px solid lighten($sidenav, 25%);
-      }
-    }
+  // Submenus
+  .menu {
+    margin-left: 8px;
   }
 }

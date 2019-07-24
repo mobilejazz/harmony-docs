@@ -2,21 +2,19 @@
 import React, { Component } from 'react';
 
 // Dependencies
-import { Route } from 'react-router-dom';
-import { take, map, combineAll, zip, mergeAll, mergeMap } from 'rxjs/operators';
-import { empty, forkJoin, Observable} from 'rxjs';
-
-// Interfaces
-import State from '../../interfaces/state';
-import Item from '../../interfaces/item';
-import MenuItem from '../../interfaces/menu-item';
-
-// Services
-import GitHubService from '../../services/github';
+import { forkJoin, Observable } from 'rxjs';
+import { take } from 'rxjs/operators';
 
 // Components
 import SideNav from '../../components/SideNav/SideNav';
-import Main from '../../components/Main/Main';
+import Item from '../../interfaces/item';
+import MenuItem from '../../interfaces/menu-item';
+
+// Interfaces
+import State from '../../interfaces/state';
+
+// Services
+import GitHubService from '../../services/github';
 
 // Assets
 import './App.scss';
@@ -39,60 +37,56 @@ class App extends Component<any> {
   public componentDidMount(): void {
     const items: Item[] = [];
     const menu: MenuItem[] = [];
-    this.getRepoContents(0, items, menu)
-      .subscribe((response) => {
-        const existingItems = [...this.state.items];
-        const existingMenu = [...this.state.menu];
-        console.log('repaint')
-        console.log('response', response)
+
+    this.getRepoContents(items, menu)
+      .subscribe((response: any) => {
         this.setState({
-          items: [...existingItems, ...items],
-          menu: [...existingMenu, ...menu]
+          items: items,
+          menu: menu
         });
+
         this.goToReadme();
-    });
+      });
   }
 
-  private getRepoContents(level: number, items: Item[], menu: MenuItem[], path?: string): Observable<any> {
-    return this.gitHubService.getContents(path)
-      .pipe(
-        take(1),
-        mergeMap((response: Item[]) => {
-          console.log('current Level', level)
-          const observablesArray: any = []; // TODO: Add interface
+  private getRepoContents(items: Item[], menu: MenuItem[], path?: string): Observable<any> {
+    return new Observable((observer) => {
+      this.gitHubService.getContents(path)
+        .pipe(take(1))
+        .subscribe((response: Item[]) => {
+          const observablesArray: any[] = [];
 
           response.forEach((item: Item) => {
-            // Add item
             items.push(item)
 
-            // Create menu item
             const menuItem: MenuItem = {
               path: item.path,
               name: item.name,
               sha: item.sha,
             };
+            menu.push(menuItem);
 
-            menu.push(menuItem)
-
-            // If item is a directory, let's get it's children
             if (item.type === "dir") {
               menuItem.children = [];
-              observablesArray.push(this.getRepoContents(level + 1, items, menuItem.children, item.path).subscribe());
+              observablesArray.push(this.getRepoContents(items, menuItem.children, item.path));
             }
           });
 
-          console.log('oblength', observablesArray.length)
-          return observablesArray.length > 0 ? forkJoin(observablesArray) : Observable.create();
-        })
-      );
+          if (observablesArray.length > 0) {
+            forkJoin(observablesArray).subscribe(() => {
+              observer.next(true);
+              observer.complete();
+            });
+          } else {
+            observer.next(true);
+            observer.complete();
+          }
+        });
+    });
   }
 
   private getItemIndex(path: string): number {
     return this.state.items.length ? this.state.items.findIndex((item: Item) => item.path === path): -1;
-  }
-
-  private getMenuItem(path: string): MenuItem | undefined {
-    return this.state.menu.find((menuItem: MenuItem) => menuItem.path === path);
   }
 
   private fileHasContents(path: string): boolean {
@@ -102,18 +96,13 @@ class App extends Component<any> {
 
   private getFileContents(path: string): void {
     this.gitHubService.getFileContents(path)
-      .pipe(
-        take(1)
-      )
-      .subscribe(
-        (response: string) => {
-          const itemIndex: number = this.getItemIndex(path);
-          const newItems: any[] = [...this.state.items];
-          newItems[itemIndex].content = response;
-          this.setState({items: newItems});
-        },
-        err => {}
-      );
+      .pipe(take(1))
+      .subscribe((response: string) => {
+        const itemIndex: number = this.getItemIndex(path);
+        const newItems: any[] = [...this.state.items];
+        newItems[itemIndex].content = response;
+        this.setState({items: newItems});
+      });
   }
 
   private handlePathChange(path: string): void {
@@ -134,18 +123,13 @@ class App extends Component<any> {
     if (this.props.location.pathname !== '/') {
       return;
     }
-    
+
     this.gitHubService.getReadme()
-    .pipe(
-      take(1)
-    )
-    .subscribe(
-      (response: Item) => {
+      .pipe(take(1))
+      .subscribe((response: Item) => {
         this.handlePathChange(response.path);
         this.props.history.push(response.path);
-      },
-      err => {}
-    );
+      });
   }
 
   render() {
@@ -167,7 +151,7 @@ class App extends Component<any> {
             />
           )}
         /> */}
-      </div>
+    </div>
     );
   }
 }
