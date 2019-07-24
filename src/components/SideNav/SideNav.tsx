@@ -5,7 +5,6 @@ import React from 'react';
 import { Link } from "react-router-dom";
 
 // Interfaces
-import Item from '../../interfaces/item';
 import MenuItem from '../../interfaces/menu-item';
 
 // Assets
@@ -18,14 +17,24 @@ const sideNav = (props: any) => {
 
   const renderMenu = (items: MenuItem[]) => {
     const lineItems = items.map((item: MenuItem) => {
-      let submenu;
+      let submenu: any;
 
       if (item.children && item.children.length > 0) {
-        submenu = renderMenu(item.children)
+        submenu = renderMenu(item.children);
       }
 
       return (
-        <li key={item.sha}>{item.name}</li>
+        <li className="menu__item" key={item.sha}>
+          {(
+            !item.children ?
+            <Link to={`/${item.path}`} onClick={() => {updatePath(item.path)}}>{item.name}</Link> :
+            <div>
+              <span>{item.name}</span>
+              <span>▾</span>
+            </div>
+          )}
+          {submenu}
+        </li>
       )
     });
 
@@ -67,9 +76,7 @@ const sideNav = (props: any) => {
 
   return (
     <div className="SideNav">
-      <ul className="menu">
-        {renderMenu(props.menu)}
-      </ul>
+      {renderMenu(props.menu)}
     </div>
   );
 }
