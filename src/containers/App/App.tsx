@@ -4,13 +4,16 @@ import React, { Component } from 'react';
 // Dependencies
 import { forkJoin, Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
+import { Route } from 'react-router';
 
 // Components
 import SideNav from '../../components/SideNav/SideNav';
+import Main from '../../components/Main/Main';
+
+// Interfaces
 import Item from '../../interfaces/item';
 import MenuItem from '../../interfaces/menu-item';
 
-// Interfaces
 import State from '../../interfaces/state';
 
 // Services
@@ -39,10 +42,10 @@ class App extends Component<any> {
     const menu: MenuItem[] = [];
 
     this.getRepoContents(items, menu)
-      .subscribe((response: any) => {
+      .subscribe(() => {
         this.setState({
           items: items,
-          menu: menu
+          menu: menu,
         });
 
         this.goToReadme();
@@ -52,36 +55,36 @@ class App extends Component<any> {
   private getRepoContents(items: Item[], menu: MenuItem[], path?: string): Observable<any> {
     return new Observable((observer) => {
       this.gitHubService.getContents(path)
-        .pipe(take(1))
-        .subscribe((response: Item[]) => {
-          const observablesArray: any[] = [];
+      .pipe(take(1))
+      .subscribe((response: Item[]) => {
+        const observablesArray: any[] = [];
 
-          response.forEach((item: Item) => {
-            items.push(item)
+        response.forEach((item: Item) => {
+          items.push(item)
 
-            const menuItem: MenuItem = {
-              path: item.path,
-              name: item.name,
-              sha: item.sha,
-            };
-            menu.push(menuItem);
+          const menuItem: MenuItem = {
+            path: item.path,
+            name: item.name,
+            sha: item.sha,
+          };
+          menu.push(menuItem);
 
-            if (item.type === "dir") {
-              menuItem.children = [];
-              observablesArray.push(this.getRepoContents(items, menuItem.children, item.path));
-            }
-          });
-
-          if (observablesArray.length > 0) {
-            forkJoin(observablesArray).subscribe(() => {
-              observer.next(true);
-              observer.complete();
-            });
-          } else {
-            observer.next(true);
-            observer.complete();
+          if (item.type === "dir") {
+            menuItem.children = [];
+            observablesArray.push(this.getRepoContents(items, menuItem.children, item.path));
           }
         });
+
+        if (observablesArray.length > 0) {
+          forkJoin(observablesArray).subscribe(() => {
+            observer.next(true);
+            observer.complete();
+          });
+        } else {
+          observer.next(true);
+          observer.complete();
+        }
+      });
     });
   }
 
@@ -138,10 +141,9 @@ class App extends Component<any> {
         <SideNav
           location={this.props.location.pathname}
           menu={this.state.menu}
-          items={this.state.items}
           handlePathChange={(path: string) => this.handlePathChange(path)}
         />
-        {/* <Route
+        <Route
           path="/:path"
           render={(props) => (
             <Main
@@ -150,7 +152,7 @@ class App extends Component<any> {
               handlePathChange={(path: string) => this.handlePathChange(path)}
             />
           )}
-        /> */}
+        />
     </div>
     );
   }

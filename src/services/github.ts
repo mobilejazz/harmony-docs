@@ -7,10 +7,11 @@ class GitHubService {
   private baseUrl: string = 'https://api.github.com/repos';
   private owner: string = 'mobilejazz';
   private repo: string = 'harmony-docs';
+  private branch: string = 'develop'
 
   public getContents(path: string = ''): Observable<any> {
     return Observable.create((observer: any) => {
-      axios.get(`${this.baseUrl}/${this.owner}/${this.repo}/contents/${path}?ref=develop`)
+      axios.get(`${this.baseUrl}/${this.owner}/${this.repo}/contents/${path}?ref=${this.branch}`)
         .then((response) => {
           observer.next(response.data);
           observer.complete();
@@ -36,7 +37,7 @@ class GitHubService {
 
   public getFileContents(path: string): Observable<any> {
     return Observable.create((observer: any) => {
-      axios.get(`${this.baseUrl}/${this.owner}/${this.repo}/contents/${path}`)
+      axios.get(`${this.baseUrl}/${this.owner}/${this.repo}/contents/${path}?ref=${this.branch}`)
         .then((response) => {
           const lines: string[] = response.data.content.split(/\s+/);
           let fileContents: string = '';

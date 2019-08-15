@@ -12,7 +12,7 @@ import './SideNav.scss';
 
 class SideNav extends Component<any> { // TODO: Add props and state interface
   state = {
-    openSubmenus: ['test'],
+    openSubmenus: ['sha'],
   }
 
   private updatePath(path: string): void {
